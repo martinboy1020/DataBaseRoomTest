@@ -5,33 +5,60 @@ import android.content.Context;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.migration.Migration;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
-//@Database(entities = {HealthRecordEntity.class, ConfigObject.class}, version = 2, exportSchema = true)
-@Database(entities = {UserEntity.class}, version = 1)
+import static com.martinboy.databaseroomtest.database.DataBaseManager.TABLE_USER;
+
+@Database(entities = {UserEntity.class}, version = 2, exportSchema = true)
+
+// exportSchema = true
+// In the build.gradle file for your app module,
+// add this to the defaultConfig section (under the android section).
+// This will write out the schema to a schemas subfolder of your project folder.
+
+//javaCompileOptions {
+//        annotationProcessorOptions {
+//        arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+//        }
+//        }
+
 public abstract class AppDatabase extends RoomDatabase {
 
-    public static final String DATABASE_NAME = "database.db";
+    private static final String DATABASE_NAME = "database.db";
     private static AppDatabase INSTANCE;
     private static final Object sLock = new Object();
-//    public abstract UserDao userDao();
 
-    public static AppDatabase getInstance(Context context) {
+    static AppDatabase getInstance(Context context) {
         synchronized (sLock) {
-
-//            if (instance == null) {
-//                synchronized (HealthCenterDB.class) {
-//                    instance = Room.databaseBuilder(context.getApplicationContext(), HealthCenterDB.class, DATABASE_NAME)
-//                            .addMigrations(migration_1_to_2)
-//                            .allowMainThreadQueries().build();
-//                }
-//            }
-
             if (INSTANCE == null) {
                 INSTANCE =
                         Room.databaseBuilder(context.getApplicationContext(), AppDatabase.class, DATABASE_NAME)
-                                .allowMainThreadQueries().build();
+                                .allowMainThreadQueries().addMigrations(MIGRATION_1_2).build();
             }
             return INSTANCE;
+        }
+    }
+
+    private static final Migration MIGRATION_1_2 = new Migration(1, 2) {
+        @Override
+        public void migrate(SupportSQLiteDatabase database) {
+            database.execSQL(AddColumnIntInDb(TABLE_USER, "age", true, 0));
+        }
+    };
+
+    private static String AddColumnTextInDb(String tableName, String columnName) {
+        return "ALTER TABLE " + TABLE_USER
+                + " ADD COLUMN " + columnName + " TEXT";
+    }
+
+    private static String AddColumnIntInDb(String tableName, String columnName, boolean isNotNull, int defaultInt) {
+        if(isNotNull) {
+            return "ALTER TABLE " + TABLE_USER
+                    + " ADD COLUMN " + columnName + " INTEGER NOT NULL DEFAULT " + defaultInt;
+        } else {
+            return "ALTER TABLE " + TABLE_USER
+                    + " ADD COLUMN " + columnName + " INTEGER";
         }
     }
 
@@ -40,16 +67,5 @@ public abstract class AppDatabase extends RoomDatabase {
     }
 
     public abstract UserDao getUserDao();
-
-    // for update
-//    public static final Migration migration_1_to_2 = new Migration(1, 2) {
-//        @Override
-//        public void migrate(@NonNull SupportSQLiteDatabase database) {
-//            database.execSQL("ALTER TABLE " + SettingManager.TABLE_USER
-//                    + " ADD COLUMN userId TEXT");
-//            database.execSQL("ALTER TABLE " + SettingManager.TABLE_USER
-//                    + " ADD COLUMN visibleStatus INTEGER NOT NULL DEFAULT 1");
-//        }
-//    };
 
 }

@@ -9,12 +9,14 @@
     <Button
         android:id="@+id/btn_addData"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="新增資料"/>
 
     <Button
         android:id="@+id/btn_showData"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="展示資料"/>
 
     <TextView
         android:id="@+id/data_count"

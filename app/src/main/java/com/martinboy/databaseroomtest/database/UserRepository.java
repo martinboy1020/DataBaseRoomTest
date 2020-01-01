@@ -2,6 +2,7 @@ package com.martinboy.databaseroomtest.database;
 
 import android.app.Application;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.util.List;
 
@@ -19,6 +20,7 @@ public class UserRepository {
     }
 
     public LiveData<List<UserEntity>> getLiveUsers() {
+        Log.d("tag1", "mLiveUsers.getValue(): " + mLiveUsers.getValue());
         return mLiveUsers;
     }
 
